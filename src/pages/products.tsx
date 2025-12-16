@@ -1,12 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function Products() {
+  const navigate = useNavigate();
   // 仮データ（API をつなぐまではこれで OK）
   const [products] = useState([
     { id: 1, title: "サンプル商品A", price: 1200, imageUrl: "" },
     { id: 2, title: "サンプル商品B", price: 2400, imageUrl: "" },
     { id: 3, title: "サンプル商品C", price: 3600, imageUrl: "" },
   ]);
+  const goDetail = (id: number)=>{
+    navigate(`/products/${id}`);
+  };
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: 20 }}>
@@ -32,13 +37,13 @@ export default function Products() {
         {products.map((p) => (
           <div
             key={p.id}
+            onClick={()=>goDetail(p.id)}
             style={{
               border: "1px solid #ccc",
               borderRadius: 8,
               padding: 12,
               cursor: "pointer",
             }}
-            onClick={() => (window.location.href = `/products/${p.id}`)}
           >
             <div
               style={{

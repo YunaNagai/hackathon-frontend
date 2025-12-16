@@ -3,10 +3,13 @@ import { useParams } from "react-router-dom";
 
 export default function Transaction() {
   const { id } = useParams(); // /transactions/:id の id
-
   // 仮の取引ステータス
-  const [status, setStatus] = useState("発送待ち");
-
+  const [status, setStatus] = useState("購入手続き中");
+  const advanceStatus = () => {
+    if (status == "購入手続き中") setStatus("発送待ち");
+    else if (status =="発送待ち") setStatus("発送済み");
+    else if (status =="発送済み") setStatus("取引完了");
+  };
   // 仮のメッセージ一覧
   const [messages, setMessages] = useState([
     { id: 1, userName: "購入者", message: "購入しました！よろしくお願いします。" },
@@ -42,6 +45,25 @@ export default function Transaction() {
       >
         <strong>現在のステータス:</strong> {status}
       </div>
+      {status!="取引完了"&&(
+        <button
+          onClick={advanceStatus}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#2196f3",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+          >
+            ステータスを進める
+          </button>
+      )}
+      {status=="取引完了"&&(
+        <p style={{ marginTop: 20, fontWeight: "bold", color: "green"}}>
+          取引が完了しました！
+        </p>
+      )}
 
       {/* メッセージ一覧 */}
       <div

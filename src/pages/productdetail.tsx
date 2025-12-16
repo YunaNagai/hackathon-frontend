@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function ProductDetail() {
   const { id } = useParams(); // /products/:id の id を取得
-
+  const navigate =useNavigate();
   // 仮データ（API をつなぐまではこれで OK）
   const [product] = useState({
     id,
@@ -13,6 +13,9 @@ export default function ProductDetail() {
     imageUrl: "",
     sellerName: "出品者 太郎",
   });
+  const goMessagesPre = () =>{
+    navigate(`/products/${id}/messages-pre`);
+  }
 
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: 20 }}>
@@ -56,24 +59,9 @@ export default function ProductDetail() {
           fontSize: 16,
           cursor: "pointer",
         }}
-        onClick={() => (window.location.href = `/products/${id}/messages-pre`)}
+        onClick={goMessagesPre}
       >
         質問する（購入前DM）
-      </button>
-
-      {/* 購入ボタン */}
-      <button
-        style={{
-          marginTop: 10,
-          padding: "10px 20px",
-          fontSize: 16,
-          backgroundColor: "#ff6b6b",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        購入する
       </button>
     </div>
   );
