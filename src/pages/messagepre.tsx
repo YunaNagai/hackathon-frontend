@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function MessagesPre() {
   const { id } = useParams(); // /products/:id/messages-pre の id
-
+  const navigate = useNavigate();
+  const goTransaction =()=>{
+    navigate(`/transactions/${id}`);
+  };
   // 仮のメッセージ一覧（API をつなぐまではこれで OK）
   const [messages, setMessages] = useState([
     { id: 1, userName: "ユーザーA", message: "まだ在庫ありますか？" },
@@ -59,6 +62,19 @@ export default function MessagesPre() {
         />
         <button onClick={handleSend}>送信</button>
       </div>
+      <button
+        onClick={goTransaction}
+        style={{
+          marginTop:20,
+          padding: "10px 20px",
+          backgroundColor: "#4caf50",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        購入する
+      </button>
     </div>
   );
 }

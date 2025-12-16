@@ -18,7 +18,7 @@ function App() {
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/products/:id/messages-pre" element={<MessagesPre />} />
         <Route path="/sell" element={<Sell />} />
-        <Route path="/transaction/:id" element={<Transaction />} />
+        <Route path="/transactions/:id" element={<Transaction />} />
         
       </Routes>
     </BrowserRouter>

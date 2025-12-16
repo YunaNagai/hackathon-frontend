@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const handleLogin = () => {
+    navigate("/login");
+  };
   return (
     <div style={{ maxWidth: 400, margin: "0 auto", padding: 20 }}>
       <h1>新規登録</h1>
@@ -31,7 +35,7 @@ export default function Register() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button>登録</button>
+        <button onClick={handleLogin}>登録</button>
       </div>
 
       <p style={{ marginTop: 20 }}>
