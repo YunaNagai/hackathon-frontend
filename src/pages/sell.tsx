@@ -1,22 +1,42 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useProducts } from "../contexts/ProductsContexts";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Sell() {
+  const navigate =useNavigate();
+  const { user } =useAuth();
+  const { addProduct } = useProducts();
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
     }
   };
+  if (!user) {
+  return <p>ログインしてください。</p>;
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  addProduct({
+    id: Date.now(),
+    title,
+    price: Number(price),
+    description,
+    imageUrl: image ? URL.createObjectURL(image) : undefined,
+    sellerId: user!.id,
+  });
+  navigate("/products");
+};
 
   return (
     <div style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
       <h1>商品を出品する</h1>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* 商品名 */}
         <input
           type="text"
@@ -63,10 +83,11 @@ export default function Sell() {
             border: "none",
             cursor: "pointer",
           }}
+          type="submit"
         >
           出品する
         </button>
-      </div>
+        </form>
     </div>
   );
 }

@@ -1,20 +1,33 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useProducts, Product } from "../contexts/ProductsContexts";
+import { useState } from "react";
+import { useTransactions } from "../contexts/TransactionContext";
+import Transaction from "./transaction";
+
 
 export default function Products() {
+  const { createTransaction } = useTransactions();
   const { user, login } = useAuth();
-  const navigate = useNavigate();
-  // 仮データ（API をつなぐまではこれで OK）
-  const [products] = useState([
-    { id: 1, title: "サンプル商品A", price: 1200, imageUrl: "" },
-    { id: 2, title: "サンプル商品B", price: 2400, imageUrl: "" },
-    { id: 3, title: "サンプル商品C", price: 3600, imageUrl: "" },
-  ]);
-  const goDetail = (id: number)=>{
-    navigate(`/products/${id}`);
-  };
+  const { products }=useProducts();
+  const startTransaction = (p: Product) => {
+    if (!user) return;
 
+    createTransaction({
+      id: Date.now(),
+      productId: p.id,
+      buyerId: user.id,
+      sellerId: p.sellerId,
+      status: "requested",
+      createdAt: new Date().toISOString(),
+    });
+    navigate(`/products/${p.id}`);    
+  }
+  const navigate = useNavigate();
+  const [keyword, setKeyword] =useState("");
+  const filteredProducts = products.filter((p) =>
+    p.title.toLowerCase().includes(keyword.toLowerCase())
+  );
   return (
     <div>
       <div style={{ marginBottom: 20 }}>
@@ -22,7 +35,12 @@ export default function Products() {
           購入者として操作
         </button>
 
-        <button onClick={() => login({ id: 1, name: "Yuna", role: "seller" })}>
+        <button
+          onClick={() =>{
+            login({ id: 1, name: "Yuna", role: "seller" });
+            navigate("/sell");
+          }}
+        >
           出品者として操作
         </button>
       </div>
@@ -35,6 +53,8 @@ export default function Products() {
           <input
             type="text"
             placeholder="商品名で検索"
+            value={keyword}
+            onChange={(e)=>setKeyword(e.target.value)}
             style={{ width: "100%", padding: 8 }}
           />
         </div>
@@ -47,10 +67,10 @@ export default function Products() {
             gap: 20,
           }}
         >
-          {products.map((p) => (
+          {filteredProducts.map((p) => (
             <div
               key={p.id}
-              onClick={()=>goDetail(p.id)}
+              onClick={()=>startTransaction(p)}
               style={{
                 border: "1px solid #ccc",
                 borderRadius: 8,
@@ -62,8 +82,12 @@ export default function Products() {
                 style={{
                   width: "100%",
                   height: 120,
-                  backgroundColor: "#eee",
-                  marginBottom: 10,
+                  backgroundColor: p.imageUrl ? "transparent" : "#eee",
+                  backgroundImage: p.imageUrl ? `url(${p.imageUrl})` :undefined,
+                  marginBottom: 20,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  borderRadius: 8,
                 }}
               >
               {/* 画像は後で API から取得 */}
