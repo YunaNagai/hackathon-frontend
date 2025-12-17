@@ -7,10 +7,12 @@ import MessagesPre from "./pages/messagepre";
 import Sell from "./pages/sell";
 import Transaction from "./pages/transaction";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ProductsProvider } from "./contexts/ProductsContexts";
 
 function App() {
   return (
     <AuthProvider>
+    <ProductsProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
@@ -24,6 +26,7 @@ function App() {
         
       </Routes>
     </BrowserRouter>
+    </ProductsProvider>
     </AuthProvider>
   );
 }

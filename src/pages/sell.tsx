@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useProducts } from "../contexts/ProductsContexts";
 
 export default function Sell() {
+  const navigate =useNavigate();
+  const { addProduct } = useProducts();
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -11,12 +15,22 @@ export default function Sell() {
       setImage(e.target.files[0]);
     }
   };
+  const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  addProduct({
+    id: Date.now(),
+    title,
+    price: Number(price),
+    description,
+    imageUrl: image ? URL.createObjectURL(image) : undefined,
+  });
+  navigate("/products");
+};
 
   return (
     <div style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
       <h1>商品を出品する</h1>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {/* 商品名 */}
         <input
           type="text"
@@ -63,10 +77,11 @@ export default function Sell() {
             border: "none",
             cursor: "pointer",
           }}
+          type="submit"
         >
           出品する
         </button>
-      </div>
+        </form>
     </div>
   );
 }

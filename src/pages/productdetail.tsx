@@ -1,67 +1,55 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate,useParams } from "react-router-dom";
+import { useProducts } from "../contexts/ProductsContexts";
 
 export default function ProductDetail() {
   const { id } = useParams(); // /products/:id の id を取得
-  const navigate =useNavigate();
-  // 仮データ（API をつなぐまではこれで OK）
-  const [product] = useState({
-    id,
-    title: "サンプル商品A",
-    price: 1200,
-    description: "これはサンプル商品の説明です。",
-    imageUrl: "",
-    sellerName: "出品者 太郎",
-  });
-  const goMessagesPre = () =>{
-    navigate(`/products/${id}/messages-pre`);
+  const { products } = useProducts();
+  const navigate = useNavigate();
+
+  // URL の id は string なので number に変換
+  const productId = Number(id);
+
+  // Context から該当商品を探す
+  const product = products.find((p) => p.id === productId);
+
+  if (!product) {
+    return <p>商品が見つかりませんでした。</p>;
   }
+  const goMessage = () => {
+    navigate(`/products/${id}/messages-pre`);
+  };
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: 20 }}>
-      <h1>商品詳細</h1>
+    <div style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
+      <h1>{product.title}</h1>
 
-      {/* 商品画像 */}
       <div
         style={{
           width: "100%",
-          height: 300,
-          backgroundColor: "#eee",
+          height: 200,
+          backgroundColor: product.imageUrl ? "transparent" : "#eee",
+          backgroundImage: product.imageUrl ? `url(${product.imageUrl})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRadius: 8,
           marginBottom: 20,
         }}
-      >
-        {/* 画像は後で API から取得 */}
-      </div>
+      />
 
-      {/* 商品名・価格 */}
-      <h2>{product.title}</h2>
-      <p style={{ fontSize: 20, fontWeight: "bold" }}>
-        ¥{product.price.toLocaleString()}
-      </p>
-
-      {/* 商品説明 */}
-      <div style={{ marginTop: 20 }}>
-        <h3>商品説明</h3>
-        <p>{product.description}</p>
-      </div>
-
-      {/* 出品者情報 */}
-      <div style={{ marginTop: 20 }}>
-        <h3>出品者</h3>
-        <p>{product.sellerName}</p>
-      </div>
-
-      {/* 購入前DMボタン */}
+      <p>価格: ¥{product.price.toLocaleString()}</p>
+      <p style={{ marginTop: 20 }}>{product.description}</p>
       <button
+        onClick={goMessage}
         style={{
-          marginTop: 30,
+          marginTop: 20,
           padding: "10px 20px",
-          fontSize: 16,
+          backgroundColor: "#1976d2",
+          color: "white",
+          border: "none",
           cursor: "pointer",
         }}
-        onClick={goMessagesPre}
       >
-        質問する（購入前DM）
+        購入前メッセージへ
       </button>
     </div>
   );
