@@ -1,29 +1,37 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { data } from "react-router-dom";
 
-type Product = {
+export type Product = {
   id: number;
   title: string;
   price: number;
   description: string;
   imageUrl?: string;
+  sellerId: number;
 };
 
 type ProductsContextType = {
   products: Product[];
-  addProduct: (p: Product) => void;
+  addProduct: (p: Product) => Promise<void>;
 };
 
 const ProductsContext = createContext<ProductsContextType | null>(null);
 
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, title: "サンプル商品A", price: 1200, description: "説明A"},
-    { id: 2, title: "サンプル商品B", price: 2400, description: "説明B"},
-    { id: 3, title: "サンプル商品C", price: 3600, description: "説明C"},
-  ]);
-
-  const addProduct = (p: Product) => {
-    setProducts((prev) => [...prev, p]);
+  const [products, setProducts] = useState<Product[]>([]);
+  useEffect(() => {
+    fetch("http://localhost:3001/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
+  },[]);
+  const addProduct = async (p: Product) => {
+    const res = await fetch("http://localhost:3001/products",{
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(p),
+    });
+    const newProduct = await res.json();
+    setProducts((prev) => [...prev, newProduct]);
   };
 
   return (
