@@ -6,9 +6,11 @@ import ProductDetail from "./pages/productdetail";
 import MessagesPre from "./pages/messagepre";
 import Sell from "./pages/sell";
 import Transaction from "./pages/transaction";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
@@ -22,6 +24,7 @@ function App() {
         
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 

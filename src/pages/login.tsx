@@ -1,11 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { isYieldExpression } from "typescript";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const {login} = useAuth();
   const handleLogin = () => {
+    login({
+      id: 1,
+      name: "yn",
+      role: "buyer",
+    });
     navigate("/products");
   };
   return (
