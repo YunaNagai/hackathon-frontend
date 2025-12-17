@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Transaction() {
+  const { user } = useAuth();
   const { id } = useParams(); // /transactions/:id の id
   // 仮の取引ステータス
   const [status, setStatus] = useState("購入手続き中");
   const advanceStatus = () => {
     if (status == "購入手続き中") setStatus("発送待ち");
-    else if (status =="発送待ち") setStatus("発送済み");
-    else if (status =="発送済み") setStatus("取引完了");
   };
   // 仮のメッセージ一覧
   const [messages, setMessages] = useState([
@@ -45,7 +45,8 @@ export default function Transaction() {
       >
         <strong>現在のステータス:</strong> {status}
       </div>
-      {status!="取引完了"&&(
+
+      {user?.role=="buyer"&&status=="購入手続き中"&&(
         <button
           onClick={advanceStatus}
           style={{
@@ -56,9 +57,39 @@ export default function Transaction() {
             cursor: "pointer",
           }}
           >
-            ステータスを進める
+            発送を待つ
           </button>
       )}
+      {user?.role=="seller"&&status=="発送待ち"&&(
+        <button
+          onClick={() => setStatus("発送済み")}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#ff9800",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            marginBottom: 20,
+          }}
+          >
+            発送しました
+          </button>
+      )}
+      {user?.role=="buyer"&&status === "発送済み" && (
+  <button
+    onClick={() => setStatus("取引完了")}
+    style={{
+      padding: "10px 20px",
+      backgroundColor: "#4caf50",
+      color: "white",
+      border: "none",
+      cursor: "pointer",
+      marginBottom: 20,
+    }}
+  >
+    取引を完了する
+  </button>
+)}
       {status=="取引完了"&&(
         <p style={{ marginTop: 20, fontWeight: "bold", color: "green"}}>
           取引が完了しました！
