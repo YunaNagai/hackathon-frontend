@@ -1,20 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "../contexts/ProductsContexts";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Sell() {
   const navigate =useNavigate();
+  const { user } =useAuth();
   const { addProduct } = useProducts();
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
     }
   };
+  if (!user) {
+  return <p>ログインしてください。</p>;
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
   addProduct({
@@ -23,6 +28,7 @@ export default function Sell() {
     price: Number(price),
     description,
     imageUrl: image ? URL.createObjectURL(image) : undefined,
+    sellerId: user!.id,
   });
   navigate("/products");
 };

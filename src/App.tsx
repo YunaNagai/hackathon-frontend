@@ -8,11 +8,15 @@ import Sell from "./pages/sell";
 import Transaction from "./pages/transaction";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductsProvider } from "./contexts/ProductsContexts";
+import { TransactionsProvider } from "./contexts/TransactionContext";
+import { MessagesProvider } from "./contexts/MessagesContext";
 
 function App() {
   return (
     <AuthProvider>
     <ProductsProvider>
+    <TransactionsProvider>
+    <MessagesProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
@@ -26,6 +30,8 @@ function App() {
         
       </Routes>
     </BrowserRouter>
+    </MessagesProvider>
+    </TransactionsProvider>
     </ProductsProvider>
     </AuthProvider>
   );

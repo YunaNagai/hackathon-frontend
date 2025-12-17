@@ -1,17 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useProducts } from "../contexts/ProductsContexts";
+import { useProducts, Product } from "../contexts/ProductsContexts";
 import { useState } from "react";
+import { useTransactions } from "../contexts/TransactionContext";
+import Transaction from "./transaction";
 
 
 export default function Products() {
+  const { createTransaction } = useTransactions();
   const { user, login } = useAuth();
   const { products }=useProducts();
+  const startTransaction = (p: Product) => {
+    if (!user) return;
+
+    createTransaction({
+      id: Date.now(),
+      productId: p.id,
+      buyerId: user.id,
+      sellerId: p.sellerId,
+      status: "requested",
+      createdAt: new Date().toISOString(),
+    });
+    navigate(`/products/${p.id}`);    
+  }
   const navigate = useNavigate();
-  // 仮データ（API をつなぐまではこれで OK）
-  const goDetail = (id: number)=>{
-    navigate(`/products/${id}`);
-  };
   const [keyword, setKeyword] =useState("");
   const filteredProducts = products.filter((p) =>
     p.title.toLowerCase().includes(keyword.toLowerCase())
@@ -58,7 +70,7 @@ export default function Products() {
           {filteredProducts.map((p) => (
             <div
               key={p.id}
-              onClick={()=>goDetail(p.id)}
+              onClick={()=>startTransaction(p)}
               style={{
                 border: "1px solid #ccc",
                 borderRadius: 8,

@@ -1,30 +1,46 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTransactions } from "../contexts/TransactionContext";
+import { useMessages } from "../contexts/MessagesContext";
 
 export default function Transaction() {
   const { user } = useAuth();
   const { id } = useParams(); // /transactions/:id の id
+  const { transactions, updateTransaction } = useTransactions();
+  const transactionId = Number(id);
+  const transaction = transactions.find(t => t.id == transactionId );
+  const {messages, sendMessage} = useMessages();
+  const [input, setInput] = useState(""); 
+  if (!transaction) return <p>取引データを読み込んでいます...</p>;
   // 仮の取引ステータス
-  const [status, setStatus] = useState("購入手続き中");
+  const status = transaction.status;
   const advanceStatus = () => {
-    if (status == "購入手続き中") setStatus("発送待ち");
+    if (status == "requested"&&user?.role == "buyer"){
+      updateTransaction(transaction.id, {status: "shipping" });
+    }
+    if (status == "shipping"&&user?.role=="seller"){
+      updateTransaction(transaction.id, {status: "shipped"});
+    }
+    if (status=="shipped"&&user?.role=="buyer"){
+      updateTransaction(transaction.id, {status: "completed"});
+    }
   };
   // 仮のメッセージ一覧
-  const [messages, setMessages] = useState([
-    { id: 1, userName: "購入者", message: "購入しました！よろしくお願いします。" },
-    { id: 2, userName: "出品者", message: "ありがとうございます！準備します。" },
-  ]);
 
-  const [input, setInput] = useState("");
-
+  const transactionMessages = messages.filter(
+    (m) => m.transactionId == transactionId
+  );
   const handleSend = () => {
     if (!input.trim()) return;
 
-    setMessages([
-      ...messages,
-      { id: messages.length + 1, userName: "あなた", message: input },
-    ]);
+    sendMessage({
+      id: Date.now(),
+      transactionId,
+      userName: user?.name ?? "不明",
+      message: input,
+      createdAt: new Date().toISOString(),
+    });
 
     setInput("");
   };
@@ -46,7 +62,7 @@ export default function Transaction() {
         <strong>現在のステータス:</strong> {status}
       </div>
 
-      {user?.role=="buyer"&&status=="購入手続き中"&&(
+      {user?.role=="buyer"&&status=="requested"&&(
         <button
           onClick={advanceStatus}
           style={{
@@ -60,9 +76,9 @@ export default function Transaction() {
             発送を待つ
           </button>
       )}
-      {user?.role=="seller"&&status=="発送待ち"&&(
+      {user?.role=="seller"&&status=="shipping"&&(
         <button
-          onClick={() => setStatus("発送済み")}
+          onClick={advanceStatus}
           style={{
             padding: "10px 20px",
             backgroundColor: "#ff9800",
@@ -75,9 +91,9 @@ export default function Transaction() {
             発送しました
           </button>
       )}
-      {user?.role=="buyer"&&status === "発送済み" && (
+      {user?.role=="buyer"&&status === "shipped" && (
   <button
-    onClick={() => setStatus("取引完了")}
+    onClick={advanceStatus}
     style={{
       padding: "10px 20px",
       backgroundColor: "#4caf50",
@@ -90,7 +106,7 @@ export default function Transaction() {
     取引を完了する
   </button>
 )}
-      {status=="取引完了"&&(
+      {status=="completed"&&(
         <p style={{ marginTop: 20, fontWeight: "bold", color: "green"}}>
           取引が完了しました！
         </p>
@@ -107,7 +123,7 @@ export default function Transaction() {
           marginBottom: 20,
         }}
       >
-        {messages.map((m) => (
+        {transactionMessages.map((m) => (
           <div key={m.id} style={{ marginBottom: 12 }}>
             <strong>{m.userName}</strong>
             <p style={{ margin: "4px 0" }}>{m.message}</p>
