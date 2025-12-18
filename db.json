@@ -1,5 +1,13 @@
 {
-  "products": [],
+  "products": [
+    {
+      "id": 1765972386660,
+      "title": "",
+      "price": 0,
+      "description": "",
+      "sellerId": 1
+    }
+  ],
   "transactions": [],
   "messages": []
 }
