@@ -3,8 +3,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 type Transaction = {
   id: number;
   productId: number;
-  buyerId: number;
-  sellerId: number;
+  buyerId: string;
+  sellerId: string;
   status: string;
   createdAt: string;
 };

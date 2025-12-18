@@ -4,6 +4,7 @@ type User = {
   uid: string;
   email: string | null;
   name?: string | null;
+  age?: number;
   role?: "buyer" | "seller";
 };
 

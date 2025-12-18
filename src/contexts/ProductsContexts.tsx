@@ -7,7 +7,7 @@ export type Product = {
   price: number;
   description: string;
   imageUrl?: string;
-  sellerId: number;
+  sellerId: string;
 };
 
 type ProductsContextType = {

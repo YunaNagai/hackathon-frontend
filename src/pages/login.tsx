@@ -16,11 +16,19 @@ export const Login = () => {
         email,
         password
       );
+      const uid = userCredential.user.uid;
+      const res = await fetch(
+        `https://hackathon-backend-1002011225238.us-central1.run.app/user/${uid}`
+      );
+
+      const backendUser = await res.json();
 
       login({
-        uid: userCredential.user.uid,
+        uid,
         email: userCredential.user.email,
-        name: userCredential.user.displayName,
+        name: backendUser.name,
+        age: backendUser.age,
+        role: backendUser.role,
       });
 
       alert("ログイン成功: "+ userCredential.user.email);

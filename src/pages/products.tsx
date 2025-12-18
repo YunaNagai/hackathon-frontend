@@ -3,41 +3,57 @@ import { useAuth } from "../contexts/AuthContext";
 import { useProducts, Product } from "../contexts/ProductsContexts";
 import { useState } from "react";
 import { useTransactions } from "../contexts/TransactionContext";
-import Transaction from "./transaction";
 
 
 export default function Products() {
   const { createTransaction } = useTransactions();
   const { user, login } = useAuth();
   const { products }=useProducts();
+  const navigate = useNavigate();
+
+  const [keyword, setKeyword] =useState("");
+  const filteredProducts = products.filter((p) =>
+    p.title.toLowerCase().includes(keyword.toLowerCase())
+  );
   const startTransaction = (p: Product) => {
     if (!user) return;
 
     createTransaction({
       id: Date.now(),
       productId: p.id,
-      buyerId: user.id,
+      buyerId: user.uid,
       sellerId: p.sellerId,
       status: "requested",
       createdAt: new Date().toISOString(),
     });
     navigate(`/products/${p.id}`);    
   }
-  const navigate = useNavigate();
-  const [keyword, setKeyword] =useState("");
-  const filteredProducts = products.filter((p) =>
-    p.title.toLowerCase().includes(keyword.toLowerCase())
-  );
+
+
   return (
     <div>
       <div style={{ marginBottom: 20 }}>
-        <button onClick={() => login({ id: 1, name: "Yuna", role: "buyer" })}>
+        <button
+          onClick={() =>
+            login({
+              uid: "dummy-buyer",
+              email: "buyer@example.com",
+              name: "Yuna", 
+              role: "buyer"
+            })
+          }
+        >
           購入者として操作
         </button>
 
         <button
           onClick={() =>{
-            login({ id: 1, name: "Yuna", role: "seller" });
+            login({
+              uid: "dummy-seller",
+              email: "seller@example.com",
+              name: "Yuna",
+              role: "seller" 
+            });
             navigate("/sell");
           }}
         >
