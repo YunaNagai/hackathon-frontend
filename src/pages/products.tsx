@@ -19,7 +19,7 @@ export default function Products() {
     if (!user) return;
 
     createTransaction({
-      id: Date.now(),
+      id: String(Date.now()),
       productId: p.id,
       buyerId: user.uid,
       sellerId: p.sellerId,

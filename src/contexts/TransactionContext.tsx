@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 type Transaction = {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   buyerId: string;
   sellerId: string;
   status: string;
@@ -12,7 +12,7 @@ type Transaction = {
 type TransactionsContextType = {
   transactions: Transaction[];
   createTransaction: (t: Transaction) => Promise<void>;
-  updateTransaction: (id: number, data: Partial<Transaction>) => Promise<void>;
+  updateTransaction: (id: string, data: Partial<Transaction>) => Promise<void>;
 };
 
 const TransactionsContext = createContext<TransactionsContextType | null>(null);
@@ -40,7 +40,7 @@ export function TransactionsProvider({ children }: { children: React.ReactNode }
   };
 
   // 取引更新（ステータス変更など）
-  const updateTransaction = async (id: number, data: Partial<Transaction>) => {
+  const updateTransaction = async (id: string, data: Partial<Transaction>) => {
     const res = await fetch(`http://localhost:3001/transactions/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

@@ -23,12 +23,12 @@ export default function Sell() {
   const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
   addProduct({
-    id: Date.now(),
+    id: String(Date.now()),
     title,
     price: Number(price),
     description,
     imageUrl: image ? URL.createObjectURL(image) : undefined,
-    sellerId: user!.id,
+    sellerId: user!.uid,
   });
   navigate("/products");
 };

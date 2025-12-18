@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { data } from "react-router-dom";
 
 export type Product = {
-  id: number;
+  id: string;
   title: string;
   price: number;
   description: string;
