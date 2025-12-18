@@ -23,9 +23,9 @@ export const RegisterForm = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            id: uid,
             name,
             email,
-            password,
             age: Number(age),
           }),
         }            
@@ -81,3 +81,5 @@ export const RegisterForm = () => {
     </div>
   );
 }
+
+export default RegisterForm

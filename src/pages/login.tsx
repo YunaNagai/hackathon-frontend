@@ -3,7 +3,6 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { fireAuth } from "../firebase";
-import { setSourceMapRange } from "typescript";
 
 export const Login = () => {
   const { login } = useAuth();
@@ -62,3 +61,5 @@ export const Login = () => {
     </div>
   );
 }
+
+export default Login;
