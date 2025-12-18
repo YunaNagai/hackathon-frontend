@@ -3,14 +3,17 @@ import { useProducts } from "../contexts/ProductsContexts";
 
 export default function ProductDetail() {
   const { id } = useParams(); // /products/:id の id を取得
+  if (!id) {
+  return <p>商品IDが不正です。</p>;
+  }
   const { products } = useProducts();
   const navigate = useNavigate();
 
   // URL の id は string なので number に変換
-  const productId = Number(id);
+
 
   // Context から該当商品を探す
-  const product = products.find((p) => p.id === productId);
+  const product = products.find((p) => p.id === id);
 
   if (!product) {
     return <p>商品が見つかりませんでした。</p>;
