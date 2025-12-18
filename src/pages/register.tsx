@@ -1,15 +1,23 @@
 import { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { fireAuth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
-export default function Register() {
+export const RegisterForm = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [age, setAge] = useState("");
-  const handleRegister = async () => {
+  const signUp = async () => {
     try{
-      const res = await fetch(
+      const userCredential = await createUserWithEmailAndPassword(
+        fireAuth,
+        email,
+        password
+      );
+      const uid = userCredential.user.uid;
+      await fetch(
         "https://hackathon-backend-1002011225238.us-central1.run.app/user",
         {
           method: "POST",
@@ -22,14 +30,10 @@ export default function Register() {
           }),
         }            
       );
-      if (!res.ok){
-        alert("登録に失敗しました");
-        return;
-      }
-      const data = await res.json();
-      console.log("登録成功",data);
+
+      alert("登録成功");
     
-    navigate("/login");
+      navigate("/login");
     }catch(err){
       console.error(err);
       alert("エラーが発生しました");
@@ -68,7 +72,7 @@ export default function Register() {
           onChange={(e) => setAge(e.target.value)}
         />
 
-        <button onClick={handleRegister}>登録</button>
+        <button onClick={signUp}>登録</button>
       </div>
 
       <p style={{ marginTop: 20 }}>

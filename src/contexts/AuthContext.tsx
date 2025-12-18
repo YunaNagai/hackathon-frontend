@@ -1,9 +1,10 @@
 import { createContext, useContext, useState } from "react";
 
 type User = {
-  id: number;
-  name: string;
-  role: "buyer" | "seller";
+  uid: string;
+  email: string | null;
+  name?: string | null;
+  role?: "buyer" | "seller";
 };
 
 type AuthContextType = {
