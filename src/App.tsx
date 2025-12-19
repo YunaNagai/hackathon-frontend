@@ -6,6 +6,7 @@ import ProductDetail from "./pages/productdetail";
 import MessagesPre from "./pages/messagepre";
 import Sell from "./pages/sell";
 import Transaction from "./pages/transaction";
+import SellerProducts from "./pages/SellerProducts";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductsProvider } from "./contexts/ProductsContexts";
 import { TransactionsProvider } from "./contexts/TransactionContext";
@@ -64,6 +65,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/seller/products" element={<SellerProducts />} />
         
       </Routes>
     

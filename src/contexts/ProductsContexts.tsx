@@ -9,7 +9,7 @@ export type Product = {
   price: number;
   description: string;
   imageUrl?: string;
-  sellerId: string;
+  sellerId: string;   
 };
 
 type ProductsContextType = {

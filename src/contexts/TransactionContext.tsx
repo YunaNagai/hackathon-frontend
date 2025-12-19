@@ -30,7 +30,7 @@ export function TransactionsProvider({ children }: { children: React.ReactNode }
         if (!Array.isArray(data)) return setTransactions([]);
         setTransactions(data);
       });
-    });
+  }, []); // ← これが必要
 
 
   // 新規取引作成
