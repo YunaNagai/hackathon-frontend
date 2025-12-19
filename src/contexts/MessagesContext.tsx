@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { BACKEND_URL } from "../constants";
+
 
 export type Message = {
   id: number;
-  transactionId: number;
+  transactionId: string;
   userName: string;
   message: string;
   createdAt: string;
@@ -20,20 +22,20 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
 
   // 初回読み込み
   useEffect(() => {
-    fetch("http://localhost:3001/messages")
+    fetch(`${BACKEND_URL}/messages`)
       .then((res) => res.json())
       .then((data) => setMessages(data));
   }, []);
 
   const sendMessage = async (msg: Message) => {
-    const res = await fetch("http://localhost:3001/messages", {
+    const res = await fetch(`${BACKEND_URL}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(msg),
     });
 
     const newMsg = await res.json();
-    setMessages((prev) => [...prev, newMsg]);
+    setMessages((prev) => [...prev, msg]);
   };
 
   return (

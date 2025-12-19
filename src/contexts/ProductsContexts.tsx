@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { data } from "react-router-dom";
+import { BACKEND_URL } from "../constants";
+
 
 export type Product = {
   id: string;
@@ -20,12 +22,12 @@ const ProductsContext = createContext<ProductsContextType | null>(null);
 export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   useEffect(() => {
-    fetch("http://localhost:3001/products")
+    fetch(`${BACKEND_URL}/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
   },[]);
   const addProduct = async (p: Product) => {
-    const res = await fetch("http://localhost:3001/products",{
+    const res = await fetch(`${BACKEND_URL}/products`,{
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(p),

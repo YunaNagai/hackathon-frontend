@@ -1,0 +1,1 @@
+export const BACKEND_URL = "https://hackathon-backend-1002011225238.us-central1.run.app";
