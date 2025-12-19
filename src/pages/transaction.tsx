@@ -6,10 +6,10 @@ import { useMessages } from "../contexts/MessagesContext";
 
 export default function Transaction() {
   const { user } = useAuth();
-  const { id } = useParams(); // /transactions/:id の id
+  const { id } = useParams<{ id: string }>(); // /transactions/:id の id
+  const transactionId = id!;
   const { transactions, updateTransaction } = useTransactions();
-  const transactionId = Number(id);
-  const transaction = transactions.find(t => t.id == transactionId );
+  const transaction = (transactions ?? []).find(t => t.id === id);
   const {messages, sendMessage} = useMessages();
   const [input, setInput] = useState(""); 
   if (!transaction) return <p>取引データを読み込んでいます...</p>;
@@ -28,16 +28,19 @@ export default function Transaction() {
   };
   // 仮のメッセージ一覧
 
-  const transactionMessages = messages.filter(
-    (m) => m.transactionId == transactionId
+  const transactionMessages = (messages ?? []).filter(
+    (m) => m.transactionId === id
   );
+
+
+
   const handleSend = () => {
     if (!input.trim()) return;
 
     sendMessage({
       id: Date.now(),
-      transactionId,
-      userName: user?.name ?? "不明",
+      transactionId: String(transactionId),
+      userName: user?.name || user?.email || "unknown",
       message: input,
       createdAt: new Date().toISOString(),
     });

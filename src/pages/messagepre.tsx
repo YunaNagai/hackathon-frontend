@@ -1,12 +1,37 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { BACKEND_URL } from "../constants"; // あなたの構成に合わせて
+import { useAuth } from "../contexts/AuthContext";
+
 
 export default function MessagesPre() {
   const { id } = useParams(); // /products/:id/messages-pre の id
   const navigate = useNavigate();
-  const goTransaction =()=>{
-    navigate(`/transactions/${id}`);
+  const location = useLocation();
+  const product = location.state?.product;
+  const { user } = useAuth();
+
+  const goTransaction = async () => {
+    // ① 取引を作成する
+    const res = await fetch(`${BACKEND_URL}/transactions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: crypto.randomUUID(),
+        productId: id,          // ← 商品ID
+        buyerId: user?.uid,
+        sellerId: product.sellerId,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      }),
+    });
+
+    const newTx = await res.json();
+
+    // ② 取引IDで遷移する
+    navigate(`/transactions/${newTx.id}`);
   };
+
   // 仮のメッセージ一覧（API をつなぐまではこれで OK）
   const [messages, setMessages] = useState([
     { id: 1, userName: "ユーザーA", message: "まだ在庫ありますか？" },

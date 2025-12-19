@@ -23,7 +23,7 @@ export const RegisterForm = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            id: uid,
+            uid,
             name,
             email,
             age: Number(age),

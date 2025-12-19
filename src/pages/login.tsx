@@ -9,40 +9,34 @@ export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const signIn = async () => {
-    try{
-      const userCredential = await signInWithEmailAndPassword(
-        fireAuth,
-        email,
-        password
-      );
-      const uid = userCredential.user.uid;
-      const res = await fetch(
-        `https://hackathon-backend-1002011225238.us-central1.run.app/user/${uid}`
-      );
+const signIn = async () => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      fireAuth,
+      email,
+      password
+    );
 
-      const backendUser = await res.json();
+    const uid = userCredential.user.uid;
 
-      login({
-        uid,
-        email: userCredential.user.email,
-        name: backendUser.name,
-        age: backendUser.age,
-        role: backendUser.role,
-      });
+    // 🔥 バックエンドにユーザー情報を取りに行く必要はない
+    login({
+      uid,
+      email: userCredential.user.email,
+    });
 
-      alert("ログイン成功: "+ userCredential.user.email);
-      setEmail("");
-      setPassword("");
-      navigate("/products");
-    }catch(err){
-      if(err instanceof Error){
-        alert(err.message);
-      }else{
-        alert("ログインに失敗しました")
-      }
+    alert("ログイン成功: " + userCredential.user.email);
+    setEmail("");
+    setPassword("");
+    navigate("/products");
+  } catch (err) {
+    if (err instanceof Error) {
+      alert(err.message);
+    } else {
+      alert("ログインに失敗しました");
     }
-  };
+  }
+};
   return (
     <div style={{ maxWidth: 400, margin: "0 auto", padding: 20 }}>
       <h1>ログイン</h1>

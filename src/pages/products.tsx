@@ -13,7 +13,7 @@ export default function Products() {
 
   const [keyword, setKeyword] =useState("");
   const filteredProducts = products.filter((p) =>
-    p.title.toLowerCase().includes(keyword.toLowerCase())
+    Number(p.price || 0).toLocaleString().includes(keyword.toLowerCase())
   );
   const startTransaction = (p: Product) => {
     if (!user) return;
@@ -109,7 +109,7 @@ export default function Products() {
               {/* 画像は後で API から取得 */}
               </div>
               <h3 style={{ margin: "8px 0" }}>{p.title}</h3>
-              <p>¥{p.price.toLocaleString()}</p>
+              <p>¥{(p.price ?? 0).toLocaleString()}</p>
             </div>
           ))}
         </div>

@@ -1,26 +1,53 @@
-import { useNavigate,useParams } from "react-router-dom";
-import { useProducts } from "../contexts/ProductsContexts";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+type Product = {
+  id: string;
+  title: string;
+  price: number;
+  sellerId: string;
+  imageUrl?: string;
+  description?:string;
+};
 
 export default function ProductDetail() {
   const { id } = useParams(); // /products/:id の id を取得
-  if (!id) {
-  return <p>商品IDが不正です。</p>;
-  }
-  const { products } = useProducts();
   const navigate = useNavigate();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (!id) {
+      setError("商品IDが不正です");
+      setLoading(false);
+      return;
+    }
 
-  // URL の id は string なので number に変換
+    fetch(`https://hackathon-backend-1002011225238.us-central1.run.app/products/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("商品が見つかりません");
+        return res.json();
+      })
+      .then((data) => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [id]);
 
+  if (loading) return <p>読み込み中...</p>;
+  if (error) return <p>{error}</p>;
+  if (!product) return <p>商品が見つかりませんでした。</p>;
 
-  // Context から該当商品を探す
-  const product = products.find((p) => p.id === id);
-
-  if (!product) {
-    return <p>商品が見つかりませんでした。</p>;
-  }
   const goMessage = () => {
-    navigate(`/products/${id}/messages-pre`);
+    navigate(`/products/${id}/messages-pre`, {
+      state: { product }
+    });
   };
+
 
   return (
     <div style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
