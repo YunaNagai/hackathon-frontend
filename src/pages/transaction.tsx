@@ -1,45 +1,90 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useTransactions } from "../contexts/TransactionContext";
 import { useMessages } from "../contexts/MessagesContext";
+import { BACKEND_URL } from "../constants";
 
 export default function Transaction() {
   const { user } = useAuth();
-  const { id } = useParams<{ id: string }>(); // /transactions/:id の id
-  const transactionId = id!;
-  const { transactions, updateTransaction } = useTransactions();
-  const transaction = (transactions ?? []).find(t => t.id === id);
-  const {messages, sendMessage} = useMessages();
-  const [input, setInput] = useState(""); 
-  if (!transaction) return <p>取引データを読み込んでいます...</p>;
-  // 仮の取引ステータス
-  const status = transaction.status;
-  const advanceStatus = () => {
-    if (status == "requested"&&user?.role == "buyer"){
-      updateTransaction(transaction.id, {status: "shipping" });
+  const { id } = useParams<{ id: string }>();
+
+  // Hooks は全部トップ
+  const { messages, sendMessage } = useMessages();
+  const [input, setInput] = useState("");
+
+  const [transaction, setTransaction] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 取引データ取得
+  useEffect(() => {
+    if (!id) return;
+
+    fetch(`${BACKEND_URL}/transactions/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTransaction(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
+
+  // 🔥 ここに advanceStatus を置く（Hooks の後、return の前）
+  const advanceStatus = async () => {
+    console.log("DEBUG PUT URL:", `${BACKEND_URL}/transactions/${transaction.id}`);
+console.log("DEBUG transaction.id:", transaction.id);
+console.log("DEBUG BACKEND_URL:", BACKEND_URL);
+
+    if (!transaction) return;
+
+    let nextStatus = null;
+
+    if (transaction.status === "requested" && user?.role === "buyer") {
+      nextStatus = "shipping";
     }
-    if (status == "shipping"&&user?.role=="seller"){
-      updateTransaction(transaction.id, {status: "shipped"});
+    if (transaction.status === "shipping" && user?.role === "seller") {
+      nextStatus = "shipped";
     }
-    if (status=="shipped"&&user?.role=="buyer"){
-      updateTransaction(transaction.id, {status: "completed"});
+    if (transaction.status === "shipped" && user?.role === "buyer") {
+      nextStatus = "completed";
     }
+
+    if (!nextStatus) return;
+
+        console.log("DEBUG PUT URL:", `${BACKEND_URL}/transactions/${transaction.id}`);
+console.log("DEBUG transaction.id:", transaction.id);
+console.log("DEBUG BACKEND_URL:", BACKEND_URL);
+console.log("DEBUG nextStatus:", nextStatus);
+
+    await fetch(`${BACKEND_URL}/transactions/${transaction.id}`, {
+      method: "PUT",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: nextStatus }),
+    });
+
+    // 更新後のデータを再取得
+    const res = await fetch(`${BACKEND_URL}/transactions/${id}`);
+    const updated = await res.json();
+    setTransaction(updated);
   };
-  // 仮のメッセージ一覧
+
+  if (loading) return <p>読み込み中...</p>;
+  if (!transaction) return <p>取引が見つかりません</p>;
+
+  const status = transaction.status;
 
   const transactionMessages = (messages ?? []).filter(
     (m) => m.transactionId === id
   );
-
-
 
   const handleSend = () => {
     if (!input.trim()) return;
 
     sendMessage({
       id: Date.now(),
-      transactionId: String(transactionId),
+      transactionId: id!,
       userName: user?.name || user?.email || "unknown",
       message: input,
       createdAt: new Date().toISOString(),
@@ -53,7 +98,6 @@ export default function Transaction() {
       <h1>取引ページ</h1>
       <p>取引ID: {id}</p>
 
-      {/* 取引ステータス */}
       <div
         style={{
           padding: 12,
@@ -65,55 +109,26 @@ export default function Transaction() {
         <strong>現在のステータス:</strong> {status}
       </div>
 
-      {user?.role=="buyer"&&status=="requested"&&(
-        <button
-          onClick={advanceStatus}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#2196f3",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-          >
-            発送を待つ
-          </button>
+      {/* 🔥 ステータスボタン */}
+      {user?.role === "buyer" && status === "requested" && (
+        <button onClick={advanceStatus}>発送を待つ</button>
       )}
-      {user?.role=="seller"&&status=="shipping"&&(
-        <button
-          onClick={advanceStatus}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#ff9800",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            marginBottom: 20,
-          }}
-          >
-            発送しました
-          </button>
+
+      {user?.role === "seller" && status === "shipping" && (
+        <button onClick={advanceStatus}>発送しました</button>
       )}
-      {user?.role=="buyer"&&status === "shipped" && (
-  <button
-    onClick={advanceStatus}
-    style={{
-      padding: "10px 20px",
-      backgroundColor: "#4caf50",
-      color: "white",
-      border: "none",
-      cursor: "pointer",
-      marginBottom: 20,
-    }}
-  >
-    取引を完了する
-  </button>
-)}
-      {status=="completed"&&(
-        <p style={{ marginTop: 20, fontWeight: "bold", color: "green"}}>
+
+      {user?.role === "buyer" && status === "shipped" && (
+        <button onClick={advanceStatus}>取引を完了する</button>
+      )}
+
+      {status === "completed" && (
+        <p style={{ marginTop: 20, fontWeight: "bold", color: "green" }}>
           取引が完了しました！
         </p>
       )}
+      <p>DEBUG status: {transaction.status}</p>
+      <p>DEBUG role: {user?.role}</p>
 
       {/* メッセージ一覧 */}
       <div

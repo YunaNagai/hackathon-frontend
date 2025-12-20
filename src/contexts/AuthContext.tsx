@@ -1,16 +1,18 @@
-import { createContext, useContext, useState } from "react";
+// src/contexts/AuthContext.tsx
+import { createContext, useContext, useState, useEffect } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { fireAuth } from "../firebase";
+import { fetchUserRole } from "../lib/fetchUserRole";
 
 type User = {
   uid: string;
   email: string | null;
   name?: string | null;
-  age?: number;
   role?: "buyer" | "seller";
 };
 
 type AuthContextType = {
   user: User | null;
-  login: (user: User) => void;
   logout: () => void;
 };
 
@@ -19,11 +21,33 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
-  const login = (u: User) => setUser(u);
-  const logout = () => setUser(null);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(fireAuth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        return;
+      }
+
+      const role = await fetchUserRole(firebaseUser.uid);
+
+      setUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName,
+        role,
+      });
+    });
+
+    return () => unsub();
+  }, []);
+
+  const logout = () => {
+    signOut(fireAuth);
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, logout }}>
       {children}
     </AuthContext.Provider>
   );

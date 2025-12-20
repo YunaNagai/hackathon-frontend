@@ -12,6 +12,7 @@ import { ProductsProvider } from "./contexts/ProductsContexts";
 import { TransactionsProvider } from "./contexts/TransactionContext";
 import { MessagesProvider } from "./contexts/MessagesContext";
 import { ProtectedRoute } from "./ProtectedRoute";
+import RequireSeller from "./RequireSeller";
 
 function App() {
   return (
@@ -49,14 +50,17 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/sell"
-          element={
-            <ProtectedRoute>
-              <Sell />
-            </ProtectedRoute>
-          }
-        />
+<Route
+  path="/sell"
+  element={
+    <ProtectedRoute>
+      <RequireSeller>
+        <Sell />
+      </RequireSeller>
+    </ProtectedRoute>
+  }
+/>
+
         <Route
           path="/transactions/:id"
           element={

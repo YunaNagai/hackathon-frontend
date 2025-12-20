@@ -24,8 +24,10 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     fetch(`${BACKEND_URL}/products`)
       .then((res) => res.json())
-      .then((data) => setProducts(data));
-  },[]);
+      .then((data) => {
+        setProducts(Array.isArray(data) ? data : []);
+      });
+  }, []); 
   const addProduct = async (p: Product) => {
     const res = await fetch(`${BACKEND_URL}/products`,{
       method: "POST",

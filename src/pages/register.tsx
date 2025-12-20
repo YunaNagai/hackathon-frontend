@@ -1,85 +1,69 @@
+// src/pages/Register.tsx
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { fireAuth } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { registerUser } from "../lib/registerUser";
 
-export const RegisterForm = () => {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [age, setAge] = useState("");
-  const signUp = async () => {
-    try{
-      const userCredential = await createUserWithEmailAndPassword(
-        fireAuth,
-        email,
-        password
-      );
-      const uid = userCredential.user.uid;
-      await fetch(
-        "https://hackathon-backend-1002011225238.us-central1.run.app/user",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            uid,
-            name,
-            email,
-            age: Number(age),
-          }),
-        }            
-      );
+  const [role, setRole] = useState<"buyer" | "seller">("buyer");
+  const [loading, setLoading] = useState(false);
 
-      alert("登録成功");
-    
-      navigate("/login");
-    }catch(err){
+  const handleRegister = async () => {
+    setLoading(true);
+    try {
+      await registerUser(email, password, role);
+      alert("登録が完了しました");
+    } catch (err) {
       console.error(err);
-      alert("エラーが発生しました");
+      alert("登録に失敗しました");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: 20 }}>
-      <h1>新規登録</h1>
+    <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
+      <h2>ユーザー登録</h2>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <input
-          type="text"
-          placeholder="名前"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <label>メールアドレス</label>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ width: "100%", marginBottom: "10px" }}
+      />
 
-        <input
-          type="email"
-          placeholder="メールアドレス"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <label>パスワード</label>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ width: "100%", marginBottom: "10px" }}
+      />
 
-        <input
-          type="password"
-          placeholder="パスワード"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <label>ロール（役割）</label>
+      <select
+        value={role}
+        onChange={(e) => setRole(e.target.value as "buyer" | "seller")}
+        style={{ width: "100%", marginBottom: "20px" }}
+      >
+        <option value="buyer">購入者</option>
+        <option value="seller">出品者</option>
+      </select>
 
-        <input
-          type="number"
-          placeholder="年齢"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-        />
-
-        <button onClick={signUp}>登録</button>
-      </div>
-
-      <p style={{ marginTop: 20 }}>
-        <a href="/login">ログインはこちら</a>
-      </p>
+      <button
+        onClick={handleRegister}
+        disabled={loading}
+        style={{
+          width: "100%",
+          padding: "10px",
+          background: "#333",
+          color: "#fff",
+          borderRadius: "4px",
+        }}
+      >
+        {loading ? "登録中..." : "登録"}
+      </button>
     </div>
   );
 }
-
-export default RegisterForm

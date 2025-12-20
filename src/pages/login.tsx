@@ -1,67 +1,64 @@
+// src/pages/Login.tsx
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import { fireAuth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
-export const Login = () => {
-  const { login } = useAuth();
+export default function Login() {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-const signIn = async () => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      fireAuth,
-      email,
-      password
-    );
+  const [loading, setLoading] = useState(false);
 
-    const uid = userCredential.user.uid;
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(fireAuth, email, password);
+      alert("ログインしました");
+          navigate("/products");
 
-    // 🔥 バックエンドにユーザー情報を取りに行く必要はない
-    login({
-      uid,
-      email: userCredential.user.email,
-    });
-
-    alert("ログイン成功: " + userCredential.user.email);
-    setEmail("");
-    setPassword("");
-    navigate("/products");
-  } catch (err) {
-    if (err instanceof Error) {
-      alert(err.message);
-    } else {
+    } catch (err) {
+      console.error(err);
       alert("ログインに失敗しました");
+    } finally {
+      setLoading(false);
     }
-  }
-};
+  };
+
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: 20 }}>
-      <h1>ログイン</h1>
+    <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
+      <h2>ログイン</h2>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <input
-          type="email"
-          placeholder="メールアドレス"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="パスワード"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={signIn}>ログイン</button>
-      </div>
+      <label>メールアドレス</label>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ width: "100%", marginBottom: "10px" }}
+      />
 
-      <p style={{ marginTop: 20 }}>
-        <a href="/register">新規登録はこちら</a>
-      </p>
+      <label>パスワード</label>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ width: "100%", marginBottom: "20px" }}
+      />
+
+      <button
+        onClick={handleLogin}
+        disabled={loading}
+        style={{
+          width: "100%",
+          padding: "10px",
+          background: "#333",
+          color: "#fff",
+          borderRadius: "4px",
+        }}
+      >
+        {loading ? "ログイン中..." : "ログイン"}
+      </button>
     </div>
   );
 }
-
-export default Login;
